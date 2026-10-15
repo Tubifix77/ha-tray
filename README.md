@@ -7,7 +7,7 @@ way the OneDrive icon does for OneDrive on Windows. It starts by itself when you
 
 | icon | meaning |
 |---|---|
-| ![on](icons/ha-on.svg) full blue logo | Home Assistant is **on** and its page answers |
+| ![on](icons/ha-on.svg) filled white house with a black circuit | Home Assistant is **on** and its page answers |
 | ![starting](icons/ha-starting.svg) dimmed logo | Home Assistant is **starting** (or stopping): the container runs, the page does not answer yet. Starting takes about 5 seconds here |
 | ![off](icons/ha-off.svg) white outline | Home Assistant is **off** |
 | ![error](icons/ha-error.svg) outline with a red mark | **Docker is unavailable**, or there is no container called `homeassistant`. Hover the icon to see which |
@@ -92,8 +92,9 @@ by Pictogrammers (glyph codepoint F07D0, taken from
 The icons are released under the
 [Pictogrammers Free License](https://github.com/Templarian/MaterialDesign/blob/master/LICENSE),
 which puts icons under the Apache License 2.0 (a copy is in `icons/LICENSE-MaterialDesignIcons.txt`). `ha-on.svg` and `ha-starting.svg` use the glyph's path
-unchanged, with Home Assistant blue (#18BCF2, from the official logo in
-[home-assistant/assets](https://github.com/home-assistant/assets)) and a white circuit;
+unchanged, filled white with a black circuit so they match the panel's white, colourless icons
+(Home Assistant's own blue, #18BCF2 in the official logo in
+[home-assistant/assets](https://github.com/home-assistant/assets), is not used);
 `ha-off.svg` and `ha-error.svg` are a simplified outline traced from it for this project.
 
 Material Design Icons marks this glyph as a brand logo and as deprecated (brand icons may be
