@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Tubifix77
 """ha-tray: a tray icon that turns the Home Assistant container on and off.
 
 The icon shows the real state, polled from Docker every few seconds:
@@ -8,11 +10,13 @@ The icon shows the real state, polled from Docker every few seconds:
   off       a white outline of the logo    (container stopped)
   error     the outline with a red mark    (Docker unavailable, or no such container)
 
-Only the Home Assistant container is touched; Mosquitto is left alone. The tray stores
+Only the Home Assistant container is touched; other containers (an MQTT broker, say)
+are left alone. The tray stores
 no state of its own: the container's restart policy (unless-stopped) makes Docker
 remember a manual stop across reboots. Quitting the tray leaves Home Assistant as it is.
 """
 
+import argparse
 import fcntl
 import os
 import subprocess
@@ -31,8 +35,8 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import GdkPixbuf, Gio, GLib, Gtk  # noqa: E402
 
-CONTAINER = "homeassistant"
-PAGE_LOCAL = "http://localhost:8123/"
+CONTAINER = "homeassistant"            # --container
+PAGE_LOCAL = "http://localhost:8123/"   # --url
 POLL_SECONDS = 3
 STOP_TIMEOUT_S = 30          # time Home Assistant gets to shut down cleanly before Docker kills it
 ICON_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons")
@@ -236,7 +240,19 @@ def single_instance():
     return lock
 
 
+def parse_args():
+    global CONTAINER, PAGE_LOCAL
+    ap = argparse.ArgumentParser(description="Tray icon that turns a Home Assistant container on and off.")
+    ap.add_argument("--container", default=CONTAINER,
+                    help=f"name of the Docker container to switch (default: {CONTAINER})")
+    ap.add_argument("--url", default=PAGE_LOCAL,
+                    help=f"Home Assistant's page, checked and opened from the menu (default: {PAGE_LOCAL})")
+    a = ap.parse_args()
+    CONTAINER, PAGE_LOCAL = a.container, a.url
+
+
 if __name__ == "__main__":
+    parse_args()
     _lock = single_instance()
     Tray()
     GLib.unix_signal_add(GLib.PRIORITY_DEFAULT, 15, Gtk.main_quit)   # SIGTERM

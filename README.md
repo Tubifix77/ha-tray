@@ -1,68 +1,79 @@
-# Home Assistant tray
+# ha-tray
 
-A small icon in the panel of the homelab laptop that turns Home Assistant on and off, the
-way the OneDrive icon does for OneDrive on Windows. It starts by itself when you log in.
+A system-tray icon for Linux desktops that turns a [Home Assistant](https://www.home-assistant.io/)
+container on and off, the way the OneDrive icon does on Windows. It starts when you log in, shows
+at a glance whether Home Assistant is running, and switches it from a small menu.
+
+It is made for a home server or laptop that runs Home Assistant in [Docker](https://docs.docker.com/)
+(for example with [Docker Compose](https://docs.docker.com/compose/)) and that you sometimes want
+to free from Home Assistant's memory use without opening a terminal.
 
 ## What the icon means
 
-| icon | meaning |
+| icon | state |
 |---|---|
-| ![on](icons/ha-on.svg) filled white house with a black circuit | Home Assistant is **on** and its page answers |
-| ![starting](icons/ha-starting.svg) dimmed logo | Home Assistant is **starting** (or stopping): the container runs, the page does not answer yet. Starting takes about 5 seconds here |
-| ![off](icons/ha-off.svg) white outline | Home Assistant is **off** |
-| ![error](icons/ha-error.svg) outline with a red mark | **Docker is unavailable**, or there is no container called `homeassistant`. Hover the icon to see which |
+| ![on](docs/ha-on.png) | **On**: filled white house with a black circuit. The container runs and Home Assistant's page answers |
+| ![starting](docs/ha-starting.png) | **Starting or stopping**: the same icon, dimmed. The container runs but the page does not answer yet (about 5 seconds on the test machine) |
+| ![off](docs/ha-off.png) | **Off**: white outline. The container is stopped |
+| ![error](docs/ha-error.png) | **Error**: outline with a red mark. Docker cannot be reached, or there is no container with that name. Hover over the icon to see which |
 
-The icon checks the real state every 3 seconds, so it is correct even if Home Assistant was
-started or stopped some other way (for example `docker compose up -d`).
+The icon checks the real state every 3 seconds, so it is also right when Home Assistant was
+started or stopped some other way, for example with `docker compose up -d`.
+
+The icons are white so they match a panel of white, colourless icons. The outline has a soft
+dark edge so it can also be seen on a light panel.
 
 ## The menu
 
 Click the icon (left or right button):
 
 - **Running / Stopped / Starting... / Docker unavailable**: the current state.
-- **Turn Home Assistant on** / **Turn Home Assistant off**: switches it. Greyed out while a
-  switch is in progress. Turning off gives Home Assistant up to 30 seconds to save and shut
-  down cleanly.
-- **Open Home Assistant**: opens http://localhost:8123 in your browser. Only when it is on.
-- **Quit tray**: closes the icon. Home Assistant stays as it is. The icon comes back at the
-  next login, or start it from the application menu (**Home Assistant tray**).
+- **Turn Home Assistant on** / **Turn Home Assistant off**: switches it. Greyed out while a switch
+  is in progress. Turning off gives Home Assistant up to 30 seconds to shut down cleanly before
+  Docker stops it by force.
+- **Open Home Assistant**: opens the page in your default browser. Only while it is on.
+- **Quit tray**: closes the icon and leaves Home Assistant as it is.
 
-If a switch fails, the reason is shown greyed out under the state line.
+If a switch fails, Docker's error message appears greyed out under the state line.
 
-## What it switches, and what it leaves alone
+## Requirements
 
-It starts and stops **only the Home Assistant container**. **Mosquitto (the MQTT broker)
-keeps running at all times**: the Potluck boards send their sensors to it, and it uses about
-7 MB. Home Assistant uses about 530 MB when it is on.
-
-The tray does not save anything itself. Docker remembers your choice: the containers use
-`restart: unless-stopped`, so a Home Assistant you turned off stays off after a reboot, and
-one you left on comes back on. (Checked on this laptop: when you turn it off, Docker writes
-"manually stopped" into the container's saved state, and clears it when you turn it on. That
-it then stays off across a reboot is what Docker's documentation says; it has not been
-tried here with an actual reboot yet.)
-
-One thing to know: `docker compose up -d` in `~/homeassistant` starts every service in the
-file, so it turns Home Assistant on again. That is fine; the icon will follow.
+- Linux with an X11 desktop whose panel has a classic system tray
+  ([XEmbed](https://specifications.freedesktop.org/systemtray-spec/latest/)). Tested on
+  [XFCE](https://www.xfce.org/) 4.18 (Debian 12); other X11 panels with a classic tray should
+  work but have not been tried. **GNOME and Wayland sessions are not supported** (see below).
+- Python 3 with the GTK 3 bindings: on Debian or Ubuntu the packages `python3-gi` and
+  `gir1.2-gtk-3.0`. Tested with Python 3.11, PyGObject 3.42, GTK 3.24.
+- Docker, usable by your user without `sudo` (your user is in the `docker` group).
+- Home Assistant running in a Docker container. The default container name is `homeassistant`,
+  as in [Home Assistant's Docker instructions](https://www.home-assistant.io/installation/linux),
+  and the default page is http://localhost:8123/.
 
 ## Install
 
-It needs nothing new on the laptop: Python 3 with GTK (`python3-gi`, `gir1.2-gtk-3.0`) and
-Docker, which are already there. Copy this folder to the laptop and run:
-
 ```sh
+git clone https://github.com/Tubifix77/ha-tray.git
+cd ha-tray
 sh install.sh
 ```
 
-This puts the program in `~/.local/share/ha-tray/`, adds it to the application menu, and makes
-it start at login (`~/.config/autostart/ha-tray.desktop`). To start it right away without
-logging out:
+This copies the program to `~/.local/share/ha-tray/`, adds **Home Assistant tray** to the
+application menu, and makes it start at login (`~/.config/autostart/ha-tray.desktop`). It does
+not install any packages; it tells you if one is missing. To start it right away without logging
+out:
 
 ```sh
 ~/.local/share/ha-tray/ha-tray.py &
 ```
 
-Running `install.sh` again updates it. Only one copy runs at a time; a second start just exits.
+If your container or page is different, pass that to the installer. It is then used at every start:
+
+```sh
+sh install.sh --container my-home-assistant --url http://localhost:8123/
+```
+
+Running `install.sh` again updates the installed copy. Only one copy runs at a time; a second
+start just exits.
 
 ## Uninstall
 
@@ -70,33 +81,61 @@ Running `install.sh` again updates it. Only one copy runs at a time; a second st
 sh uninstall.sh
 ```
 
-It stops the icon and removes what `install.sh` wrote. Home Assistant is left as it is, on or off.
+This stops the icon and removes what `install.sh` wrote. Home Assistant stays as it is, on or off.
+
+## What it does and does not do
+
+- It runs `docker start <container>` and `docker stop --timeout 30 <container>` on that one
+  container and nothing else. Other containers, such as an MQTT broker in the same Compose
+  file, keep running.
+- It stores no state of its own. **Whether your choice survives a reboot depends on the
+  container's [restart policy](https://docs.docker.com/engine/containers/start-containers-automatically/)**,
+  which ha-tray never changes:
+  - `restart: unless-stopped`: a Home Assistant you turned off stays off after a reboot, and one
+    you left on comes back on. On the test machine, Docker recorded "manually stopped" in the
+    container's saved state when it was turned off, and cleared it when it was turned on. A
+    reboot with Home Assistant off has not been tried.
+  - `restart: always`: Docker starts it again when Docker itself restarts (for example at boot),
+    even if you turned it off.
+  - `restart: no` (the default): it stays off after a reboot, and does not come back on by itself
+    either.
+- `docker compose up -d` starts every service in the Compose file, so it turns Home Assistant on
+  again. The icon follows.
+- It does not use Home Assistant's API, needs no token, and does not read Home Assistant's
+  configuration. "On" means the container runs and the page gives any HTTP answer at all.
 
 ## How it works
 
-`ha-tray.py` is one Python file. Every 3 seconds it asks Docker
-(`docker inspect -f '{{.State.Running}}' homeassistant`) and, when the container runs, whether
-http://localhost:8123 answers. The menu runs `docker start homeassistant` and
-`docker stop --timeout 30 homeassistant`.
+`ha-tray.py` is one Python file. Every 3 seconds it runs
+`docker inspect -f '{{.State.Running}}' <container>` in a background thread and, when the
+container runs, checks whether the page answers. Docker's error text separates "Docker
+unavailable" from "no such container".
 
-The icon uses the classic system tray (GTK's `StatusIcon`), which the XFCE panel's Status Tray
-supports out of the box. That is deprecated in GTK but still works on X11, and it avoids
-installing anything. If the laptop ever moves to Wayland or GNOME, the tray would need the
-AppIndicator library instead (`gir1.2-ayatanaappindicator3-0.1`).
+The icon uses GTK's `Gtk.StatusIcon`, the classic XEmbed tray icon. GTK 3 marks it as
+deprecated, but it works on X11 panels without installing anything extra. GNOME's top bar has no
+tray, and Wayland has no XEmbed, so supporting those would mean moving to the
+[StatusNotifierItem / AppIndicator](https://specifications.freedesktop.org/status-notifier-item/latest/)
+protocol (on Debian, the `gir1.2-ayatanaappindicator3-0.1` package). That has not been done.
 
-## Icon credits
+The tray prints its state changes to standard output. When it is started at login, those lines
+usually end up in `~/.xsession-errors`. To watch them, quit the tray from its menu and start it
+from a terminal.
 
-The logo is the `home-assistant` icon from [Material Design Icons](https://pictogrammers.com/library/mdi/)
-by Pictogrammers (glyph codepoint F07D0, taken from
-[Templarian/MaterialDesign](https://github.com/Templarian/MaterialDesign) at commit `2424e74`).
-The icons are released under the
+## Licence
+
+The code is under the [MIT License](LICENSE).
+
+The icons in `icons/` are not. They come from the `home-assistant` icon in
+[Material Design Icons](https://pictogrammers.com/library/mdi/) by Pictogrammers (codepoint
+F07D0, from [Templarian/MaterialDesign](https://github.com/Templarian/MaterialDesign) at commit
+`2424e74`). The icons there are released under the
 [Pictogrammers Free License](https://github.com/Templarian/MaterialDesign/blob/master/LICENSE),
-which puts icons under the Apache License 2.0 (a copy is in `icons/LICENSE-MaterialDesignIcons.txt`). `ha-on.svg` and `ha-starting.svg` use the glyph's path
-unchanged, filled white with a black circuit so they match the panel's white, colourless icons
-(Home Assistant's own blue, #18BCF2 in the official logo in
-[home-assistant/assets](https://github.com/home-assistant/assets), is not used);
-`ha-off.svg` and `ha-error.svg` are a simplified outline traced from it for this project.
+which places them under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0); a
+copy is in [`icons/LICENSE-MaterialDesignIcons.txt`](icons/LICENSE-MaterialDesignIcons.txt).
+`ha-on.svg` and `ha-starting.svg` use the icon's outline unchanged, recoloured white with a black
+circuit. `ha-off.svg` and `ha-error.svg` are a simplified outline traced from it for this project.
+The same terms apply to the previews in `docs/`.
 
-Material Design Icons marks this glyph as a brand logo and as deprecated (brand icons may be
-removed from its library in a later release). The Home Assistant logo belongs to the Home
-Assistant project; it is used here only to label a private tool on your own laptop.
+Material Design Icons marks this icon as a brand logo and as deprecated, so it may be removed
+from their library in a later release. The Home Assistant name and logo belong to the Home
+Assistant project. ha-tray is not affiliated with or endorsed by the Home Assistant project.

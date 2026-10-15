@@ -1,7 +1,26 @@
 #!/bin/sh
 # Install ha-tray for the current user: copy it to ~/.local/share/ha-tray, start it at
 # login (XDG autostart) and put it in the application menu. Run it again to update.
+#
+#   sh install.sh [--container NAME] [--url URL]
+#
+# The options are passed on to ha-tray.py at every start (defaults: homeassistant,
+# http://localhost:8123/).
 set -eu
+
+opts=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --container|--url)
+            [ $# -ge 2 ] || { echo "$1 needs a value" >&2; exit 2; }
+            case "$2" in
+                *[!A-Za-z0-9._:/@-]*|"") echo "unsupported characters in $1 value: $2" >&2; exit 2 ;;
+            esac
+            opts="$opts $1 $2"; shift 2 ;;
+        -h|--help) sed -n '2,8p' "$0"; exit 0 ;;
+        *) echo "unknown option: $1 (see --help)" >&2; exit 2 ;;
+    esac
+done
 
 src=$(cd "$(dirname "$0")" && pwd)
 dest="$HOME/.local/share/ha-tray"
@@ -29,7 +48,7 @@ write_desktop() {
 Type=Application
 Name=Home Assistant tray
 Comment=Turn Home Assistant on or off from the panel
-Exec=$dest/ha-tray.py
+Exec=$dest/ha-tray.py$opts
 Icon=$dest/icons/ha-on.svg
 Terminal=false
 Categories=Utility;
@@ -41,4 +60,4 @@ write_desktop "$autostart"
 echo "X-GNOME-Autostart-enabled=true" >> "$autostart"
 
 echo "Installed in $dest"
-echo "It starts by itself at your next login. To start it now: $dest/ha-tray.py &"
+echo "It starts by itself at your next login. To start it now: $dest/ha-tray.py$opts &"
