@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Docker is unavailable (or the container is missing): the "off" outline with a red
+       mark. Traced from the Material Design Icons "home-assistant" glyph
+       (Pictogrammers, Apache-2.0), see README. -->
+  <defs>
+    <g id="outline">
+      <path d="M12,3.2L16.8,8V6.2H18.6V9.8L21,12.2H19.2V20.2H4.8V12.2H3Z"/>
+      <path d="M12,9V20.2M8.35,13.75L12,17.4L15.65,13.75"/>
+      <circle cx="12" cy="7.8" r="1.2"/>
+      <circle cx="7.5" cy="12.9" r="1.2"/>
+      <circle cx="16.5" cy="12.9" r="1.2"/>
+    </g>
+  </defs>
+  <use href="#outline" stroke="#000000" stroke-opacity="0.45" stroke-width="2.9"/>
+  <use href="#outline" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="18" cy="18" r="5.4" fill="#000000" fill-opacity="0.45"/>
+  <circle cx="18" cy="18" r="4.6" fill="#e53935"/>
+  <path d="M18,15.4V18.4" stroke="#ffffff" stroke-width="1.7"/>
+  <circle cx="18" cy="20.6" r="0.95" fill="#ffffff"/>
+</svg>

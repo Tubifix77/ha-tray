@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Home Assistant is off: the logo as a white outline, drawn over a soft dark edge
+       so it stays readable on a light panel too. Traced from the Material Design Icons
+       "home-assistant" glyph (Pictogrammers, Apache-2.0), see README. -->
+  <defs>
+    <g id="outline">
+      <path d="M12,3.2L16.8,8V6.2H18.6V9.8L21,12.2H19.2V20.2H4.8V12.2H3Z"/>
+      <path d="M12,9V20.2M8.35,13.75L12,17.4L15.65,13.75"/>
+      <circle cx="12" cy="7.8" r="1.2"/>
+      <circle cx="7.5" cy="12.9" r="1.2"/>
+      <circle cx="16.5" cy="12.9" r="1.2"/>
+    </g>
+  </defs>
+  <use href="#outline" stroke="#000000" stroke-opacity="0.45" stroke-width="2.9"/>
+  <use href="#outline" stroke="#ffffff" stroke-width="1.5"/>
+</svg>
