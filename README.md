@@ -123,7 +123,7 @@ from a terminal.
 
 ## Licence
 
-The code is under the [MIT License](LICENSE).
+The code is under the [MIT License](LICENSE). [NOTICE](NOTICE) sums up the two licences.
 
 The icons in `icons/` are not. They come from the `home-assistant` icon in
 [Material Design Icons](https://pictogrammers.com/library/mdi/) by Pictogrammers (codepoint

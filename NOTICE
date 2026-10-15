@@ -1,0 +1,7 @@
+ha-tray
+Copyright (c) 2026 Tubifix77. The code is under the MIT License (LICENSE).
+
+The icons in icons/ are not covered by the MIT License above. They are derived
+from the "home-assistant" icon of Material Design Icons by Pictogrammers and are
+distributed under the Apache License 2.0; see icons/LICENSE-MaterialDesignIcons.txt
+and https://www.apache.org/licenses/LICENSE-2.0.
